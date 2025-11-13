@@ -74,16 +74,28 @@ void loop() {
 }
 
 void updateLED(unsigned long now) {
-  if (slewing || slewPending) {
+  if (slewPending) {
+    // Slow blink during delay (1s)
+    if (now - lastBlink > 1000) {
+      lastBlink = now;
+      ledState = !ledState;
+      digitalWrite(LED_PIN, ledState);
+    }
+  } 
+  else if (slewing) {
+    // Fast blink during active slew (300ms)
     if (now - lastBlink > 300) {
       lastBlink = now;
       ledState = !ledState;
       digitalWrite(LED_PIN, ledState);
     }
-  } else {
-    digitalWrite(LED_PIN, HIGH); // tracking
+  } 
+  else {
+    // Tracking
+    digitalWrite(LED_PIN, HIGH);
   }
 }
+
 
 // Serial command handling
 void handleSerial() {
